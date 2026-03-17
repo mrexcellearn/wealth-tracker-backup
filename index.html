@@ -1,78 +1,89 @@
+<!-- 
+  🤖 ZettBOT: GitHub PWA Shell
+  File: index.html (Upload file ini ke GitHub Pages)
+-->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <!-- PWA Meta Tags (Penting agar terdeteksi di domain GitHub) -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#ea580c">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Excellearn">
+  <meta charset="UTF-8">
+  <!-- Mencegah user zooming agar terasa seperti aplikasi native -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Aplikasi GAS PWA</title>
+  
+  <!-- Link ke Manifest -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#007bff">
+  
+  <!-- PWA iOS Support -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="GAS App">
+  
+  <style>
+    /* CSS Reset untuk fullscreen Iframe */
+    html, body { 
+      margin: 0; 
+      padding: 0; 
+      height: 100%; 
+      width: 100%;
+      overflow: hidden; /* Mencegah pull-to-refresh bawaan browser */
+      background-color: #f4f7f6;
+    }
     
-    <title>Excellearn Wealth Tracker</title>
-    
-    <!-- Link langsung ke Manifest & Icon di Repo GitHub (Satu Domain) -->
-    <link rel="manifest" href="manifest.webmanifest">
-    <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/financial-growth-analysis.png">
+    /* Splash Screen Loader (Visual Effect) */
+    #loader {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: sans-serif;
+      color: #007bff;
+      font-weight: bold;
+      z-index: 10;
+      transition: opacity 0.5s ease;
+    }
 
-    <style>
-        body { 
-            margin: 0; 
-            padding: 0; 
-            overflow: hidden; 
-            background-color: #0d1117; 
-        }
-        iframe { 
-            border: none; 
-            width: 100vw; 
-            height: 100dvh; 
-            display: block; 
-        }
-    </style>
+    iframe { 
+      width: 100%; 
+      height: 100%; 
+      border: none; 
+      position: absolute;
+      top: 0; left: 0;
+      z-index: 20;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+  </style>
 </head>
 <body>
 
-    <iframe id="app-frame" 
-            src="https://script.google.com/macros/s/AKfycbw53KpCxZusvLecc1ogP4qgSOqDIXFoCRKupeTj3dyXJXH7DkjqJ61yxop82rY_4VBK/exec" 
-            allow="fullscreen; clipboard-read; clipboard-write; geolocation">
-    </iframe>
+  <!-- Loading Screen sebelum iframe dari GAS siap -->
+  <div id="loader">Memuat Aplikasi...</div>
 
-    <script>
-        /**
-         * PWA SERVICE WORKER REGISTRATION
-         * Wajib di domain yang sama agar tombol 'Install' muncul.
-         */
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('PWA SW Registered!', reg))
-                    .catch(err => console.log('PWA SW Failed:', err));
-            });
-        }
+  <!-- 
+    ========================================================
+    GANTI atribut 'src' DI BAWAH DENGAN URL WEB APP GAS KAMU 
+    ========================================================
+  -->
+  <iframe 
+    id="gasFrame"
+    src="URL_WEB_APP_GAS_KAMU_DISINI" 
+    allow="geolocation; camera; microphone"
+    onload="document.getElementById('gasFrame').style.opacity = '1'; document.getElementById('loader').style.opacity = '0';">
+  </iframe>
 
-        /**
-         * BRIDGE: Menangkap Native Back Gesture dari domain GitHub
-         * dan mengirimkan sinyal ke dalam iframe Google Apps Script.
-         */
-        window.addEventListener('popstate', function(event) {
-            const iframe = document.getElementById('app-frame');
-            if (iframe && iframe.contentWindow) {
-                // Kirim pesan ke GAS app untuk mentrigger logika tutup modal/tab
-                iframe.contentWindow.postMessage('goBack', '*');
-                
-                // Mencegah browser keluar dari aplikasi PWA saat swipe back
-                // dengan mendorong kembali state ke dalam history stack
-                history.pushState(null, '', '');
-            }
-        });
-
-        // Inisialisasi history agar ada state yang bisa di-pop (memicu back gesture)
-        history.pushState(null, '', '');
-
-        // Handle error loading iframe jika diperlukan
-        window.onload = function() {
-            console.log("Excellearn Wrapper Ready.");
-        };
-    </script>
+  <script>
+    // Pendaftaran Service Worker agar bisa diinstal menjadi PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(registration => {
+            console.log('ZettBOT: ServiceWorker sukses terdaftar dengan scope: ', registration.scope);
+          })
+          .catch(err => {
+            console.log('ZettBOT: ServiceWorker gagal terdaftar: ', err);
+          });
+      });
+    }
+  </script>
 </body>
 </html>
