@@ -2,7 +2,7 @@ const CACHE_NAME = 'excellearn-pwa-v1';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
-  './manifest.json'
+  './manifest.webmanifest'
 ];
 
 self.addEventListener('install', (event) => {
