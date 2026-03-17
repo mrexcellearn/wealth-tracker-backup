@@ -1,29 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>Excellearn Wealth Tracker</title> 
+    <meta charset="UTF-8">
+    <!-- PWA Meta Tags (Penting agar terdeteksi di domain GitHub) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#ea580c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Excellearn">
+    
+    <title>Excellearn Wealth Tracker</title>
+    
+    <!-- Link langsung ke Manifest & Icon di Google Apps Script -->
+    <link rel="manifest" href="https://script.google.com/macros/s/AKfycbw53KpCxZusvLecc1ogP4qgSOqDIXFoCRKupeTj3dyXJXH7DkjqJ61yxop82rY_4VBK/exec?get=manifest">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/financial-growth-analysis.png">
 
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden; /* Biar ga ada scrollbar */
-      background-color: #0d1117; /* Warna background gelap biar pas loading ga silau */
-    }
-    iframe {
-      border: none;
-      width: 100vw;
-      height: 100vh;
-      display: block;
-    }
-  </style>
+    <style>
+        body { 
+            margin: 0; 
+            padding: 0; 
+            overflow: hidden; 
+            background-color: #0d1117; 
+        }
+        iframe { 
+            border: none; 
+            width: 100vw; 
+            height: 100vh; 
+            display: block; 
+        }
+    </style>
 </head>
 <body>
 
-  <iframe src="https://script.google.com/macros/s/AKfycbw53KpCxZusvLecc1ogP4qgSOqDIXFoCRKupeTj3dyXJXH7DkjqJ61yxop82rY_4VBK/exec"></iframe>
+    <iframe id="app-frame" 
+            src="https://script.google.com/macros/s/AKfycbw53KpCxZusvLecc1ogP4qgSOqDIXFoCRKupeTj3dyXJXH7DkjqJ61yxop82rY_4VBK/exec" 
+            allow="fullscreen; clipboard-read; clipboard-write; geolocation">
+    </iframe>
 
+    <script>
+        /**
+         * BRIDGE: Menangkap Native Back Gesture dari domain GitHub
+         * dan mengirimkan sinyal ke dalam iframe Google Apps Script.
+         */
+        window.addEventListener('popstate', function(event) {
+            const iframe = document.getElementById('app-frame');
+            if (iframe && iframe.contentWindow) {
+                // Kirim pesan ke GAS app untuk mentrigger logika tutup modal/tab
+                iframe.contentWindow.postMessage('goBack', '*');
+                
+                // Mencegah browser keluar dari aplikasi PWA saat swipe back
+                // dengan mendorong kembali state ke dalam history stack
+                history.pushState(null, '', '');
+            }
+        });
+
+        // Inisialisasi history agar ada state yang bisa di-pop (memicu back gesture)
+        history.pushState(null, '', '');
+
+        // Handle error loading iframe jika diperlukan
+        window.onload = function() {
+            console.log("Excellearn Wrapper Ready.");
+        };
+    </script>
 </body>
 </html>
