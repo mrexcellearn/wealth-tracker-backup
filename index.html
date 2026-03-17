@@ -8,7 +8,7 @@
   <meta charset="UTF-8">
   <!-- Mencegah user zooming agar terasa seperti aplikasi native -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Aplikasi GAS PWA</title>
+  <title>PWA Excellearn Wealth Tracker</title>
   
   <!-- Link ke Manifest -->
   <link rel="manifest" href="manifest.json">
@@ -66,7 +66,7 @@
   -->
   <iframe 
     id="gasFrame"
-    src="URL_WEB_APP_GAS_KAMU_DISINI" 
+    src="https://script.google.com/macros/s/AKfycbw53KpCxZusvLecc1ogP4qgSOqDIXFoCRKupeTj3dyXJXH7DkjqJ61yxop82rY_4VBK/exec" 
     allow="geolocation; camera; microphone"
     onload="document.getElementById('gasFrame').style.opacity = '1'; document.getElementById('loader').style.opacity = '0';">
   </iframe>
@@ -77,10 +77,10 @@
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js')
           .then(registration => {
-            console.log('ZettBOT: ServiceWorker sukses terdaftar dengan scope: ', registration.scope);
+            console.log('ServiceWorker sukses terdaftar dengan scope: ', registration.scope);
           })
           .catch(err => {
-            console.log('ZettBOT: ServiceWorker gagal terdaftar: ', err);
+            console.log('ServiceWorker gagal terdaftar: ', err);
           });
       });
     }
