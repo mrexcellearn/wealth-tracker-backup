@@ -1,87 +1,108 @@
 <!-- 
-  🤖 ZettBOT: GitHub PWA Shell
+  🤖 ZettBOT: GitHub PWA Shell (Excellearn Theme)
   File: index.html (Upload file ini ke GitHub Pages)
 -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <!-- Mencegah user zooming agar terasa seperti aplikasi native -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Aplikasi GAS PWA</title>
+  <title>Excellearn Wealth Tracker</title>
   
-  <!-- Link ke Manifest -->
+  <!-- Optimasi Koneksi -->
+  <link rel="preconnect" href="https://script.google.com" crossorigin>
+  <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
+
+  <!-- PWA Setup -->
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#007bff">
-  
-  <!-- PWA iOS Support -->
+  <meta name="theme-color" content="#ea580c">
+  <link rel="icon" href="icon.png" type="image/png">
+  <link rel="apple-touch-icon" href="icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="GAS App">
+  <meta name="apple-mobile-web-app-title" content="Excellearn">
+
+  <!-- FontAwesome & Google Fonts (Sesuai dengan login.html) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   
   <style>
-    /* CSS Reset untuk fullscreen Iframe */
+    /* CSS murni untuk meniru gaya Tailwind agar loading ultra-cepat */
     html, body { 
-      margin: 0; 
-      padding: 0; 
-      height: 100%; 
-      width: 100%;
-      overflow: hidden; /* Mencegah pull-to-refresh bawaan browser */
-      background-color: #f4f7f6;
+      margin: 0; padding: 0; height: 100%; width: 100%;
+      overflow: hidden; 
+      background-color: #f1f5f9; /* bg-slate-100 */
+      font-family: 'Inter', sans-serif;
     }
     
-    /* Splash Screen Loader (Visual Effect) */
-    #loader {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      font-family: sans-serif;
-      color: #007bff;
-      font-weight: bold;
-      z-index: 10;
-      transition: opacity 0.5s ease;
+    #loaderOverlay {
+      position: absolute; inset: 0;
+      background-color: rgba(255, 255, 255, 0.9); /* bg-white/90 */
+      backdrop-filter: blur(4px); /* backdrop-blur-sm */
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 50;
+      transition: opacity 0.4s ease, visibility 0.4s;
+    }
+
+    .text-primary-600 { color: #ea580c; }
+    .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+    .mb-3 { margin-bottom: 0.75rem; }
+    .text-xs { font-size: 0.75rem; line-height: 1rem; }
+    .font-medium { font-weight: 500; }
+    .text-slate-600 { color: #475569; }
+
+    /* Dukungan Dark Mode otomatis mendeteksi pengaturan HP user */
+    @media (prefers-color-scheme: dark) {
+      body { background-color: #020617; } /* bg-slate-950 */
+      #loaderOverlay { background-color: rgba(15, 23, 42, 0.9); } /* bg-slate-900/90 */
+      .text-slate-600 { color: #cbd5e1; } /* text-slate-300 */
     }
 
     iframe { 
-      width: 100%; 
-      height: 100%; 
-      border: none; 
-      position: absolute;
-      top: 0; left: 0;
-      z-index: 20;
-      opacity: 0;
-      transition: opacity 0.5s ease;
+      width: 100%; height: 100%; border: none; 
+      position: absolute; top: 0; left: 0;
+      z-index: 20; opacity: 0;
+      transition: opacity 0.4s ease;
     }
   </style>
 </head>
 <body>
 
-  <!-- Loading Screen sebelum iframe dari GAS siap -->
-  <div id="loader">Memuat Aplikasi...</div>
+  <!-- Layar Loading yang identik dengan login.html Excellearn -->
+  <div id="loaderOverlay">
+    <i class="fas fa-circle-notch fa-spin text-3xl text-primary-600 mb-3"></i>
+    <p class="text-xs font-medium text-slate-600" id="loaderText">Membuka Excellearn...</p>
+  </div>
 
-  <!-- 
-    ========================================================
-    GANTI atribut 'src' DI BAWAH DENGAN URL WEB APP GAS KAMU 
-    ========================================================
-  -->
+  <!-- Iframe memanggil Aplikasi GAS milikmu -->
   <iframe 
     id="gasFrame"
     src="https://script.google.com/macros/s/AKfycbw53KpCxZusvLecc1ogP4qgSOqDIXFoCRKupeTj3dyXJXH7DkjqJ61yxop82rY_4VBK/exec" 
     allow="geolocation; camera; microphone"
-    onload="document.getElementById('gasFrame').style.opacity = '1'; document.getElementById('loader').style.opacity = '0';">
+    onload="hideLoader()">
   </iframe>
 
   <script>
-    // Pendaftaran Service Worker agar bisa diinstal menjadi PWA
+    let isLoaded = false;
+    
+    function hideLoader() {
+      if(isLoaded) return; 
+      isLoaded = true;
+      
+      document.getElementById('gasFrame').style.opacity = '1'; 
+      const loader = document.getElementById('loaderOverlay');
+      loader.style.opacity = '0';
+      setTimeout(() => { loader.style.visibility = 'hidden'; }, 400);
+    }
+
+    // Memaksa iframe tampil setelah 1.5 detik agar terasa instan
+    setTimeout(hideLoader, 1500);
+
+    // Mendaftarkan Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js')
-          .then(registration => {
-            console.log('ZettBOT: ServiceWorker sukses terdaftar dengan scope: ', registration.scope);
-          })
-          .catch(err => {
-            console.log('ZettBOT: ServiceWorker gagal terdaftar: ', err);
-          });
+          .catch(err => console.log('ZettBOT: SW Error: ', err));
       });
     }
   </script>
