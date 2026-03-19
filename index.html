@@ -88,27 +88,29 @@
     });
 
     // ==========================================
-    // ZETTBOT FIX: ROBUST MOBILE HISTORY TRAP
+    // ZETTBOT FIX: HASH-BASED MOBILE HISTORY TRAP
+    // Sangat kebal terhadap blokir "User Activation" Android
     // ==========================================
     
-    // 1. Dorong state pertama (Sebagai dasar jurang)
-    history.pushState({ page: 'base' }, '', window.location.href);
-    
-    // 2. Dorong state kedua (Sebagai posisi aktif saat ini)
-    history.pushState({ page: 'active' }, '', window.location.href);
-
-    window.addEventListener('popstate', (e) => {
-      // Saat user swipe-back, posisi turun dari 'active' ke 'base'.
-      // OS Batal menutup aplikasi karena merasa masih ada 1 halaman ('base')!
-      
-      const frame = document.getElementById('gasFrame');
-      if (frame && frame.contentWindow) {
-        // Kirim sinyal tutup modal ke dalam aplikasi Google Script
-        frame.contentWindow.postMessage('goBack', '*');
+    // 1. Tambahkan Hash (#app) saat aplikasi dimuat untuk memperpanjang riwayat browser
+    setTimeout(() => {
+      if (window.location.hash !== '#app') {
+        window.location.hash = 'app';
       }
-      
-      // 3. Dorong lagi state 'active' dengan cepat, supaya jebakan terpasang lagi untuk swipe berikutnya
-      history.pushState({ page: 'active' }, '', window.location.href);
+    }, 500);
+
+    // 2. Dengarkan saat user melakukan Swipe Back (hash berubah kembali kosong)
+    window.addEventListener('hashchange', () => {
+      if (window.location.hash === '') {
+        const frame = document.getElementById('gasFrame');
+        if (frame && frame.contentWindow) {
+          // Beri perintah tutup modal ke Google Script
+          frame.contentWindow.postMessage('goBack', '*');
+        }
+        
+        // 3. Pasang jebakan hash-nya lagi agar swipe berikutnya tidak menutup aplikasi
+        window.location.hash = 'app';
+      }
     });
 
   </script>
