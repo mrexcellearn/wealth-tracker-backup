@@ -1,7 +1,3 @@
-<!-- 
-  🤖 ZettBOT: GitHub PWA Shell (Excellearn Theme)
-  File: index.html (Upload file ini ke GitHub Pages)
--->
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -9,11 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Excellearn Wealth Tracker</title>
   
-  <!-- Optimasi Koneksi -->
   <link rel="preconnect" href="https://script.google.com" crossorigin>
   <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 
-  <!-- PWA Setup -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#ea580c">
   <link rel="icon" href="icon.png" type="image/png">
@@ -22,43 +16,21 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Excellearn">
 
-  <!-- FontAwesome & Google Fonts (Sesuai dengan login.html) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
   
   <style>
-    /* CSS murni untuk meniru gaya Tailwind agar loading ultra-cepat */
-    html, body { 
-      margin: 0; padding: 0; height: 100%; width: 100%;
-      overflow: hidden; 
-      background-color: #f1f5f9; /* bg-slate-100 */
-      font-family: 'Inter', sans-serif;
-    }
+    body { margin: 0; padding: 0; overflow: hidden; background-color: #f1f5f9; font-family: 'Inter', sans-serif;}
     
     #loaderOverlay {
-      position: absolute; inset: 0;
-      background-color: rgba(255, 255, 255, 0.9); /* bg-white/90 */
-      backdrop-filter: blur(4px); /* backdrop-blur-sm */
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background-color: #ffffff; z-index: 50;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      z-index: 50;
-      transition: opacity 0.4s ease, visibility 0.4s;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
     }
 
-    .text-primary-600 { color: #ea580c; }
-    .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
-    .mb-3 { margin-bottom: 0.75rem; }
-    .text-xs { font-size: 0.75rem; line-height: 1rem; }
-    .font-medium { font-weight: 500; }
-    .text-slate-600 { color: #475569; }
-
-    /* Dukungan Dark Mode otomatis mendeteksi pengaturan HP user */
-    @media (prefers-color-scheme: dark) {
-      body { background-color: #020617; } /* bg-slate-950 */
-      #loaderOverlay { background-color: rgba(15, 23, 42, 0.9); } /* bg-slate-900/90 */
-      .text-slate-600 { color: #cbd5e1; } /* text-slate-300 */
-    }
-
-    iframe { 
+    #gasFrame {
       width: 100%; height: 100%; border: none; 
       position: absolute; top: 0; left: 0;
       z-index: 20; opacity: 0;
@@ -68,13 +40,11 @@
 </head>
 <body>
 
-  <!-- Layar Loading yang identik dengan login.html Excellearn -->
   <div id="loaderOverlay">
-    <i class="fas fa-circle-notch fa-spin text-3xl text-primary-600 mb-3"></i>
+    <i class="fas fa-circle-notch fa-spin text-3xl text-orange-600 mb-3"></i>
     <p class="text-xs font-medium text-slate-600" id="loaderText">Membuka Excellearn...</p>
   </div>
 
-  <!-- Iframe memanggil Aplikasi GAS milikmu -->
   <iframe 
     id="gasFrame"
     src="https://script.google.com/macros/s/AKfycbw53KpCxZusvLecc1ogP4qgSOqDIXFoCRKupeTj3dyXJXH7DkjqJ61yxop82rY_4VBK/exec" 
@@ -89,22 +59,47 @@
       if(isLoaded) return; 
       isLoaded = true;
       
-      document.getElementById('gasFrame').style.opacity = '1'; 
+      const frame = document.getElementById('gasFrame');
+      frame.style.opacity = '1'; 
       const loader = document.getElementById('loaderOverlay');
       loader.style.opacity = '0';
+      
+      // ZettBOT FIX: Pindahkan fokus ke dalam iframe agar tidak perlu klik layar dulu
+      frame.focus();
+
       setTimeout(() => { loader.style.visibility = 'hidden'; }, 400);
     }
 
-    // Memaksa iframe tampil setelah 1.5 detik agar terasa instan
-    setTimeout(hideLoader, 3000);
+    // ==========================================
+    // ZETTBOT: IFRAME COMMUNICATION INTERCOM
+    // ==========================================
 
-    // Mendaftarkan Service Worker
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-          .catch(err => console.log('ZettBOT: SW Error: ', err));
-      });
-    }
+    // 1. Meneruskan Shortcut Keyboard (Ctrl+K) ke dalam Iframe
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        const frame = document.getElementById('gasFrame');
+        if (frame && frame.contentWindow) {
+          // Kirim sinyal 'toggleAI' ke Google Apps Script
+          frame.contentWindow.postMessage('toggleAI', '*');
+        }
+      }
+    });
+
+    // 2. Mencegah Swipe Back / Tombol Back Android menutup PWA
+    // Kita buat "History Dummy" agar sistem mendeteksi masih ada halaman sebelumnya
+    history.pushState({ page: 'wrapper' }, '', '');
+
+    window.addEventListener('popstate', (e) => {
+      const frame = document.getElementById('gasFrame');
+      if (frame && frame.contentWindow) {
+        // Kirim sinyal 'goBack' ke Google Apps Script agar dia menutup modal/tab di dalamnya
+        frame.contentWindow.postMessage('goBack', '*');
+      }
+      // Dorong lagi History Dummy agar PWA tidak tertutup pada klik back selanjutnya
+      history.pushState({ page: 'wrapper' }, '', '');
+    });
+
   </script>
 </body>
 </html>
