@@ -3,7 +3,7 @@
  * File: sw.js (Upload file ini ke GitHub Pages)
  */
 
-const CACHE_NAME = 'gas-pwa-cache-v4';
+const CACHE_NAME = 'gas-pwa-cache-v5';
 const urlsToCache = [
   './',
   './index.html',
