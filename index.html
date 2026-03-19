@@ -78,12 +78,20 @@
     // ==========================================
 
     window.addEventListener('keydown', (e) => {
+      const frame = document.getElementById('gasFrame');
+      if (!frame || !frame.contentWindow) return;
+
+      // 1. Meneruskan Shortcut Keyboard (Ctrl+K)
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
-        const frame = document.getElementById('gasFrame');
-        if (frame && frame.contentWindow) {
-          frame.contentWindow.postMessage('toggleAI', '*');
-        }
+        frame.contentWindow.postMessage('toggleAI', '*');
+      }
+      
+      // 2. Meneruskan tombol Escape (Esc)
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        e.preventDefault();
+        // Sinyal 'goBack' di script-core kita sudah diprogram untuk menutup semua modal
+        frame.contentWindow.postMessage('goBack', '*');
       }
     });
 
